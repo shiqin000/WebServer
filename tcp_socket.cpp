@@ -1,4 +1,7 @@
 #include "tcp_socket.h"
+#include "http_request.h"
+#include "http_request_parser.h"
+#include "http_response_builder.h"
 
 tcp::ServerSocket::ServerSocket(uint32_t ip, uint16_t port)
 {
@@ -114,4 +117,45 @@ size_t tcp::ClientSocket::SendFile(const std::string &filename) const
     fclose(clnt_write);
 
     return send_len;
+}
+
+void tcp::ClientSocket::Process()
+{
+    Logger::Log("处理连接中...");
+    char buf[http::kBufferSize];
+
+    int read_index = 0;
+
+    http::HttpRequest http_request;
+    http::HttpResponse http_response;
+
+    // 从客户套接字接收数据
+    auto recv_len = Recv(buf, http::kBufferSize - read_index);
+    if (recv_len == 0)
+    {
+        Logger::Log("connection closed by client");
+        return;
+    }
+    read_index += recv_len;
+    Logger::Log(std::string("----接收到数据，大小为：") + std::to_string(read_index));
+
+    // 从接收到的数据中解析出 Http 请求报文
+    bool is_parse_success = http::HttpRequestParser::Parse(buf, http_request);
+
+    // 根据 Http 请求报文构建 Http 响应报文
+    if (is_parse_success)
+    {
+        Logger::Log("----请求报文解析成功");
+        http::HttpResponseBuilder::Build(http_request, http_response);
+    }
+    else
+    {
+        Logger::Log("----请求报文解析失败");
+        http::HttpResponseBuilder::BuildError(http_response);
+    }
+    Logger::Log("----响应报文构造完毕");
+
+    // 将 Http 报文发送给客户
+    Send(http_response);
+    Logger::Log("----响应报文发送完毕");
 }

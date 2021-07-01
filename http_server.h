@@ -32,10 +32,6 @@ namespace http
         void Run();
 
     private:
-        // 处理一个客户套接字的请求
-        void ProcessRequest(const tcp::ClientSocket &client_socket);
-
-    private:
         tcp::ServerSocket server_socket_;
     };
 }

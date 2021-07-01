@@ -51,6 +51,8 @@ namespace tcp
         int GetSockFd() const { return clnt_sock_; }
         sockaddr_in GetAddr() const { return clnt_adr_; }
 
+        void Process();
+
     private:
         // 读取文件内容并发送出去
         size_t SendFile(const std::string &filename) const;
