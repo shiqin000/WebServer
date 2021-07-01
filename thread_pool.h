@@ -3,15 +3,22 @@
 #include <list>
 #include <vector>
 #include <pthread.h>
+#include <memory>
 #include "mutex_lock.h"
 #include "sem_lock.h"
 #include "tcp_socket.h"
 
+// ThreadPool 的实现采用单例模式
 class ThreadPool
 {
-public:
+private:
     ThreadPool(int thread_number = 8); // 初始化线程池时创建各工作线程并将其分离
-    ~ThreadPool();
+    ThreadPool(const ThreadPool &) {}
+    ThreadPool &operator=(const ThreadPool &) { return *this; }
+
+public:
+    static std::shared_ptr<ThreadPool> GetInstance() { return instance_; } // 获取 ThreadPool 实例
+    ~ThreadPool() { is_stop = true; }
 
     bool Append(const tcp::ClientSocket &clnt_sock); // 向工作队列添加待处理的套接字
 
@@ -26,6 +33,8 @@ private:
     MutexLock queue_locker_;                  // 保护工作队列专用的互斥锁
     SemLock queue_stat_;                      // 反应工作队列的状态：是否有任务需要处理
     bool is_stop;                             // 是否结束线程，当 is_stop 为 true，线程池中的所有线程都会终止
+
+    static std::shared_ptr<ThreadPool> instance_;
 
 private:
     static const int kMaxThreadNumber; // 可分配的工作线程的最大数量

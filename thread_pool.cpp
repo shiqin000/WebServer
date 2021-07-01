@@ -2,6 +2,7 @@
 
 const int ThreadPool::kMaxThreadNumber = 2048;
 const int ThreadPool::kMaxRequests = 10000;
+std::shared_ptr<ThreadPool> ThreadPool::instance_(new ThreadPool());
 
 ThreadPool::ThreadPool(int thread_number) : thread_number_(thread_number), is_stop(false)
 {
@@ -25,11 +26,6 @@ ThreadPool::ThreadPool(int thread_number) : thread_number_(thread_number), is_st
             exit(1);
         }
     }
-}
-
-ThreadPool::~ThreadPool()
-{
-    is_stop = true;
 }
 
 bool ThreadPool::Append(const tcp::ClientSocket &clnt_sock)
