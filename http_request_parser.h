@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string>
 #include <cstring>
+
+#include <string>
 #include <exception>
 
 #include "logger.h"
@@ -22,4 +23,4 @@ namespace http
 
         static bool ParseHeadLine(char *head_line, HttpRequest &http_request);
     };
-}
+} // namespace http

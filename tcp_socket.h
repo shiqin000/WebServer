@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <iostream>
-#include <fstream>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -10,9 +7,13 @@
 #include <cstdio>
 #include <cstring>
 
+#include <string>
+#include <iostream>
+#include <fstream>
+
+#include "logger.h"
 #include "http_data_type.h"
 #include "http_response.h"
-#include "logger.h"
 
 namespace tcp
 {
@@ -22,16 +23,24 @@ namespace tcp
     class ServerSocket
     {
     public:
-        ServerSocket(uint32_t ip = INADDR_ANY, uint16_t port = 6060);
-        ServerSocket(const std::string &ip, uint16_t port = 6060);
+        ServerSocket();
+        ServerSocket(uint16_t port);
+        ServerSocket(uint32_t ip, uint16_t port);
+        ServerSocket(const std::string &ip, uint16_t port);
 
-        void Bind();
+        void Bind() const;
         void Listen() const;
         ClientSocket Accept() const;
         void Close() const;
 
-        int GetSockFd() const { return serv_sock_; }
-        sockaddr_in GetAddr() const { return serv_adr_; }
+        inline int GetSockFd() const { return serv_sock_; }
+        inline sockaddr_in GetAddr() const { return serv_adr_; }
+
+    private:
+        static constexpr uint32_t kDefaultIp = INADDR_ANY;
+        static constexpr uint16_t kDefaultPort = 5000;
+
+        void ServAddrInit(uint32_t ip, uint16_t port);
 
     private:
         struct sockaddr_in serv_adr_; // 服务器端地址
@@ -48,10 +57,10 @@ namespace tcp
         ssize_t Send(const http::HttpResponse &http_response) const;
         void Close() const;
 
-        int GetSockFd() const { return clnt_sock_; }
-        sockaddr_in GetAddr() const { return clnt_adr_; }
+        inline int GetSockFd() const { return clnt_sock_; }
+        inline sockaddr_in GetAddr() const { return clnt_adr_; }
 
-        void Process();
+        void Process() const;
 
     private:
         // 读取文件内容并发送出去
@@ -62,4 +71,4 @@ namespace tcp
         struct sockaddr_in clnt_adr_; // 客户端地址
         socklen_t clnt_adr_size_;     // clnt_adr_ 的大小
     };
-}
+} // namespace tcp

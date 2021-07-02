@@ -5,12 +5,6 @@
 #include <unordered_map>
 
 #include "http_data_type.h"
-// #include "http_request_parser.h"
-// #include "http_response_builder.h"
-
-#define CR '\r'
-#define LF '\n'
-#define CRLF "\r\n"
 
 namespace http
 {
@@ -31,4 +25,4 @@ namespace http
         std::unordered_map<std::string, std::string> head_group_;
         std::string body_;
     };
-}
+} // namespace http

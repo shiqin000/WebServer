@@ -17,7 +17,7 @@ namespace http
     class HttpServer
     {
     public:
-        HttpServer()
+        HttpServer() : server_socket_(INADDR_ANY)
         {
             server_socket_.Bind();
             server_socket_.Listen();
@@ -29,7 +29,7 @@ namespace http
             server_socket_.Listen();
         }
 
-        void Run();
+        void Run(); // 服务器的主函数
 
     private:
         tcp::ServerSocket server_socket_;

@@ -18,4 +18,4 @@ namespace http
         static void Build(const HttpRequest &http_request, HttpResponse &http_response);
         static void BuildError(HttpResponse &http_response);
     };
-}
+} // namespace http

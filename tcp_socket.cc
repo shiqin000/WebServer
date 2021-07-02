@@ -3,35 +3,47 @@
 #include "http_request_parser.h"
 #include "http_response_builder.h"
 
+tcp::ServerSocket::ServerSocket()
+{
+    serv_sock_ = socket(PF_INET, SOCK_STREAM, 0);
+    ServAddrInit(kDefaultIp, kDefaultPort);
+}
+
+tcp::ServerSocket::ServerSocket(uint16_t port)
+{
+    serv_sock_ = socket(PF_INET, SOCK_STREAM, 0);
+    ServAddrInit(kDefaultIp, port);
+}
+
 tcp::ServerSocket::ServerSocket(uint32_t ip, uint16_t port)
 {
     serv_sock_ = socket(PF_INET, SOCK_STREAM, 0);
-
-    memset(&serv_adr_, 0, sizeof(serv_adr_));
-    serv_adr_.sin_family = AF_INET;
-    serv_adr_.sin_addr.s_addr = htonl(ip);
-    serv_adr_.sin_port = htons(port);
+    ServAddrInit(ip, port);
 }
 
 tcp::ServerSocket::ServerSocket(const std::string &ip, uint16_t port)
 {
     serv_sock_ = socket(PF_INET, SOCK_STREAM, 0);
 
-    memset(&serv_adr_, 0, sizeof(serv_adr_));
-    serv_adr_.sin_family = AF_INET;
     if (ip.empty())
     {
-        serv_adr_.sin_addr.s_addr = htonl(INADDR_ANY);
+        ServAddrInit(kDefaultIp, port);
     }
     else
     {
-        if (inet_aton(ip.c_str(), &serv_adr_.sin_addr) == 0)
-            Logger::Error("inet_aton() error");
+        ServAddrInit(inet_addr(ip.c_str()), port);
     }
+}
+
+void tcp::ServerSocket::ServAddrInit(uint32_t ip, uint16_t port)
+{
+    memset(&serv_adr_, 0, sizeof(serv_adr_));
+    serv_adr_.sin_family = AF_INET;
+    serv_adr_.sin_addr.s_addr = htonl(ip);
     serv_adr_.sin_port = htons(port);
 }
 
-void tcp::ServerSocket::Bind()
+void tcp::ServerSocket::Bind() const
 {
     if (::bind(serv_sock_, (struct sockaddr *)&serv_adr_, sizeof(serv_adr_)) == -1)
     {
@@ -119,7 +131,7 @@ size_t tcp::ClientSocket::SendFile(const std::string &filename) const
     return send_len;
 }
 
-void tcp::ClientSocket::Process()
+void tcp::ClientSocket::Process() const
 {
     Logger::Log("处理连接中...");
     char buf[http::kBufferSize];

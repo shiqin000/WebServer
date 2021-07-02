@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pthread.h>
+
 #include "non_copyable.h"
 #include "logger.h"
 
@@ -11,7 +12,7 @@ public:
     {
         if (pthread_mutex_init(&mutex_, NULL) != 0)
         {
-            exit(1);
+            quick_exit(1);
         }
     }
 
@@ -19,7 +20,7 @@ public:
     {
         if (pthread_mutex_destroy(&mutex_) != 0)
         {
-            exit(1);
+            quick_exit(1);
         }
     }
 
@@ -27,7 +28,7 @@ public:
     {
         if (pthread_mutex_lock(&mutex_) != 0)
         {
-            exit(1);
+            quick_exit(1);
         }
     }
 
@@ -35,7 +36,7 @@ public:
     {
         if (pthread_mutex_unlock(&mutex_) != 0)
         {
-            exit(1);
+            quick_exit(1);
         }
     }
 

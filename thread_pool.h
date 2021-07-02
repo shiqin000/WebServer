@@ -1,9 +1,11 @@
 #pragma once
 
+#include <pthread.h>
+
 #include <list>
 #include <vector>
-#include <pthread.h>
 #include <memory>
+
 #include "mutex_lock.h"
 #include "sem_lock.h"
 #include "tcp_socket.h"
@@ -11,20 +13,27 @@
 // ThreadPool 的实现采用单例模式
 class ThreadPool
 {
-private:
-    ThreadPool(int thread_number = 8); // 初始化线程池时创建各工作线程并将其分离
-    ThreadPool(const ThreadPool &) {}
-    ThreadPool &operator=(const ThreadPool &) { return *this; }
-
 public:
     static std::shared_ptr<ThreadPool> GetInstance() { return instance_; } // 获取 ThreadPool 实例
+
     ~ThreadPool() { is_stop = true; }
 
     bool Append(const tcp::ClientSocket &clnt_sock); // 向工作队列添加待处理的套接字
 
 private:
+    static constexpr int kDefaultThreadNumber = 8; // 默认分配的工作线程数量
+    static constexpr int kMaxThreadNumber = 2048;  // 可分配的工作线程的最大数量
+    static constexpr int kMaxRequests = 10000;     // 工作队列中最多允许的等待处理的请求的数量
+
+    ThreadPool();
+    explicit ThreadPool(int thread_number);
+    ThreadPool(const ThreadPool &) {}
+    ThreadPool &operator=(const ThreadPool &) { return *this; }
+
     static void *Worker(void *arg); // 工作线程的 main 函数
+
     void Run();
+    void CreateThreads(int thread_number); // 创建工作线程组并分离各线程
 
 private:
     int thread_number_;                       // 工作线程的数量
@@ -35,8 +44,4 @@ private:
     bool is_stop;                             // 是否结束线程，当 is_stop 为 true，线程池中的所有线程都会终止
 
     static std::shared_ptr<ThreadPool> instance_;
-
-private:
-    static const int kMaxThreadNumber; // 可分配的工作线程的最大数量
-    static const int kMaxRequests;     // 工作队列中最多允许的等待处理的请求的数量
 };

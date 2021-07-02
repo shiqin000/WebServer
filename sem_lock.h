@@ -1,6 +1,7 @@
 #pragma once
 
 #include <semaphore.h>
+
 #include "non_copyable.h"
 
 class SemLock : public NonCopyable
@@ -8,24 +9,33 @@ class SemLock : public NonCopyable
 public:
     SemLock()
     {
-        if (sem_init(&sem_, 0, 0) != 0)
+        if (sem_init(&sem_, 0, 0))
         {
-            exit(1);
+            quick_exit(1);
         }
     }
     ~SemLock()
     {
-        sem_destroy(&sem_);
+        if (sem_destroy(&sem_))
+        {
+            quick_exit(1);
+        }
     }
 
     void Wait()
     {
-        sem_wait(&sem_);
+        if (sem_wait(&sem_))
+        {
+            quick_exit(1);
+        }
     }
 
     void Post()
     {
-        sem_post(&sem_);
+        if (sem_post(&sem_))
+        {
+            quick_exit(1);
+        }
     }
 
 private:

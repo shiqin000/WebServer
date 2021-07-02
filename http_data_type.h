@@ -1,10 +1,10 @@
 #pragma once
 
-#include "unordered_map"
+#include <unordered_map>
 
 namespace http
 {
-    const int kBufferSize = 1024;
+    constexpr int kBufferSize = 1024;
 
     enum class HttpRequestMethod
     {
@@ -43,13 +43,47 @@ namespace http
         kHeadNotSupport
     };
 
-    struct Mapper
+    namespace mapper
     {
-        static std::unordered_map<std::string, HttpRequestMethod> request_method;
-        static std::unordered_map<std::string, HttpVersion> http_version;
-        static std::unordered_map<std::string, HttpHead> head;
-        static std::unordered_map<std::string, std::string> content_type;
-        static std::unordered_map<HttpStatusCode, std::string> status_code;
-    };
+        const std::unordered_map<std::string, http::HttpRequestMethod> request_method = {
+            {"GET", http::HttpRequestMethod::GET},
+            {"POST", http::HttpRequestMethod::POST},
+            {"PUT", http::HttpRequestMethod::PUT},
+            {"HEAD", http::HttpRequestMethod::HEAD},
+            {"DELETE", http::HttpRequestMethod::DELETE}};
 
-}
+        const std::unordered_map<std::string, http::HttpVersion> http_version = {
+            {"HTTP/1.0", http::HttpVersion::HTTP_1_0},
+            {"HTTP/1.1", http::HttpVersion::HTTP_1_1}};
+
+        const std::unordered_map<std::string, http::HttpHead> head = {};
+
+        const std::unordered_map<std::string, std::string> content_type = {
+            {".html", "text/html"},
+            {".xml", "text/xml"},
+            {".xhtml", "application/xhtml+xml"},
+            {".txt", "text/plain"},
+            {".rtf", "application/rtf"},
+            {".pdf", "application/pdf"},
+            {".word", "application/msword"},
+            {".png", "image/png"},
+            {".gif", "image/gif"},
+            {".jpg", "image/jpeg"},
+            {".jpeg", "image/jpeg"},
+            {".au", "audio/basic"},
+            {".mpeg", "video/mpeg"},
+            {".mpg", "video/mpeg"},
+            {".avi", "video/x-msvideo"},
+            {".gz", "application/x-gzip"},
+            {".tar", "application/x-tar"},
+            {".css", "text/css"},
+            {"", "text/plain"},
+            {"default", "text/plain"}};
+
+        const std::unordered_map<http::HttpStatusCode, std::string> status_code = {
+            {http::HttpStatusCode::k200, "200"},
+            {http::HttpStatusCode::k403, "403"},
+            {http::HttpStatusCode::k404, "404"}};
+    } // namespace mapper
+
+} // namespace http

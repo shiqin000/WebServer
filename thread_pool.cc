@@ -2,26 +2,36 @@
 
 std::shared_ptr<ThreadPool> ThreadPool::instance_(new ThreadPool());
 
+ThreadPool::ThreadPool() : thread_number_(kDefaultThreadNumber), is_stop(false)
+{
+    CreateThreads(thread_number_);
+}
+
 ThreadPool::ThreadPool(int thread_number) : thread_number_(thread_number), is_stop(false)
 {
     if (thread_number <= 0 || thread_number > kMaxThreadNumber)
     {
-        thread_number_ = 8;
+        thread_number_ = kDefaultThreadNumber;
     }
 
-    threads_.resize(thread_number_);
+    CreateThreads(thread_number_);
+}
 
-    for (int i = 0; i < thread_number_; ++i)
+void ThreadPool::CreateThreads(int thread_number)
+{
+    threads_.resize(thread_number);
+
+    for (int i = 0; i < thread_number; ++i)
     {
         if (pthread_create(&threads_[i], NULL, Worker, this) != 0)
         {
-            exit(1);
+            quick_exit(1);
         }
 
         // 分离线程
         if (pthread_detach(threads_[i]) != 0)
         {
-            exit(1);
+            quick_exit(1);
         }
     }
 }

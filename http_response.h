@@ -10,6 +10,9 @@ namespace http
     class HttpResponse
     {
     public:
+        HttpResponse() = default;
+        ~HttpResponse() = default;
+
         void SetStatusCode(const HttpStatusCode &status_code) { status_code_ = status_code; }
         void SetHttpVersion(const HttpVersion &http_version) { http_version_ = http_version; }
         void SetStatusMsg(const std::string &status_msg) { status_msg_ = status_msg; }
@@ -43,4 +46,4 @@ namespace http
         // 响应字符串
         std::string response_str_;
     };
-}
+} // namespace http
