@@ -5,7 +5,7 @@
 void http::HttpServer::Run()
 {
     Logger::Log(std::string("listening..."));
-    std::shared_ptr<ThreadPool> thread_pool = ThreadPool::GetInstance();
+    std::shared_ptr<concurrence::ThreadPool> thread_pool = concurrence::ThreadPool::GetInstance();
     while (true)
     {
         tcp::ClientSocket client_socket = server_socket_.Accept();

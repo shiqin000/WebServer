@@ -14,4 +14,6 @@ int main(int argc, char *argv[])
     http::HttpServer http_server(argv[1]);
     http_server.Run();
     Logger::Log("关闭服务器");
+
+    quick_exit(0);
 }
