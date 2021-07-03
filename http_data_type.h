@@ -4,7 +4,7 @@
 
 namespace http
 {
-    constexpr int kBufferSize = 1024;
+    constexpr int kBufferSize = 2048;
 
     enum class HttpRequestMethod
     {

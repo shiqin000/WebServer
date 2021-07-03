@@ -53,6 +53,9 @@ namespace tcp
         friend class ServerSocket;
 
     public:
+        ClientSocket() : clnt_sock_(0), clnt_adr_size_(sizeof(sockaddr_in)) {}
+        ClientSocket(int clnt_sock) : clnt_sock_(clnt_sock), clnt_adr_size_(sizeof(sockaddr_in)) {}
+
         ssize_t Recv(char *const buf, size_t nbytes) const;
         ssize_t Send(const http::HttpResponse &http_response) const;
         void Close() const;

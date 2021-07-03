@@ -85,13 +85,7 @@ void tcp::ClientSocket::Close() const
 
 ssize_t tcp::ClientSocket::Recv(char *const buf, size_t nbytes) const
 {
-    auto recv_len = ::recv(clnt_sock_, buf, nbytes, 0);
-    if (recv_len == -1)
-    {
-        Logger::Error("系统调用失败：recv() error");
-        exit(0);
-    }
-    return recv_len;
+    return ::recv(clnt_sock_, buf, nbytes, 0);
 }
 
 ssize_t tcp::ClientSocket::Send(const http::HttpResponse &http_response) const
@@ -138,23 +132,37 @@ void tcp::ClientSocket::Process() const
 
     int read_index = 0;
 
-    http::HttpRequest http_request;
-    http::HttpResponse http_response;
-
-    // 从客户套接字接收数据
-    auto recv_len = Recv(buf, http::kBufferSize - read_index);
-    if (recv_len == 0)
+    while (read_index < http::kBufferSize)
     {
-        Logger::Log("connection closed by client");
-        return;
+        ssize_t recv_len = Recv(buf + read_index, http::kBufferSize - read_index - 1);
+        if (recv_len < 0)
+        {
+            if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
+            {
+                break;
+            }
+            close(clnt_sock_);
+            break;
+        }
+        else if (recv_len == 0) // 读取到 EOF，表示对方已关闭连接
+        {
+            close(clnt_sock_);
+            return;
+        }
+        else
+        {
+            read_index += recv_len;
+        }
     }
-    read_index += recv_len;
+
     Logger::Log(std::string("----接收到数据，大小为：") + std::to_string(read_index));
 
     // 从接收到的数据中解析出 Http 请求报文
+    http::HttpRequest http_request;
     bool is_parse_success = http::HttpRequestParser::Parse(buf, http_request);
 
     // 根据 Http 请求报文构建 Http 响应报文
+    http::HttpResponse http_response;
     if (is_parse_success)
     {
         Logger::Log("----请求报文解析成功");
