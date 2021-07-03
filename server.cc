@@ -1,8 +1,8 @@
-#include "http_server.h"
+#include "server.h"
 
 #include "thread_pool.h"
 
-void http::HttpServer::Run()
+void Server::Run()
 {
     Logger::Log(std::string("listening..."));
     std::shared_ptr<concurrence::ThreadPool> thread_pool = concurrence::ThreadPool::GetInstance();
